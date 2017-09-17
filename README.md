@@ -1,2 +1,3 @@
 # Slingshot
-A slightly less ambitious version of Volvox.  
+A less ambitious version of Volvox.
+
