@@ -84,26 +84,33 @@ double frand() {
   return  ((double)rand()) / ((double)RAND_MAX);
 }
 
+/* ********************************************************************** */
+double ActFun(double xin) {
+  double OutVal;
+  OutVal = xin / sqrt(1.0 + xin * xin);/* symmetrical sigmoid function in range -1.0 to 1.0. */
+  return OutVal;
+  /* General formula: double power = 2.0; OutVal = xin / Math.pow(1 + Math.abs(Math.pow(xin, power)), 1.0 / power); */
+}
 namespace BitInt {
-  /* ********************************************************************** */
-  inline static double TransBit(int val, int bitnum) {
-    return ((double)((val >> bitnum)&0x1)) * 2.0 - 1.0;
-  }
-  inline static double TransInt(int val) {
-    return ((double)val) * 2.0 - 1.0;
-  }
-  inline static uint32_t Bit2Int(int val, int bitnum) {
-    return ((val >> bitnum)&0x1);
-  }
+/* ********************************************************************** */
+inline static double TransBit(int val, int bitnum) {
+  return ((double)((val >> bitnum)&0x1)) * 2.0 - 1.0;
+}
+inline static double TransInt(int val) {
+  return ((double)val) * 2.0 - 1.0;
+}
+inline static uint32_t Bit2Int(int val, int bitnum) {
+  return ((val >> bitnum)&0x1);
+}
 }
 /* **************************************************************************** */
 namespace TW {
-  enum TrainWays { Classic=0, Surf=1 };
-  static const char *TrainWayNames[] = {"Classic","Surf"};
+enum TrainWays { Classic=0, Surf=1 };
+static const char *TrainWayNames[] = {"Classic","Surf"};
 #if true
-  static TrainWays TrainWay = Surf;
+static TrainWays TrainWay = Surf;
 #else
-  static TrainWays TrainWay = Classic;
+static TrainWays TrainWay = Classic;
 #endif
 }
 /* **************************************************************************** */
@@ -126,8 +133,7 @@ static void Distribution() {
 
 #if false
 /* **************************************************************************** */
-static void Distribution()
-{
+static void Distribution() {
   int raysz = 10;// array size
   int numitems = 5;// number of items going into the array, randomly distributed and not overlapping
 
@@ -148,17 +154,14 @@ static void Distribution()
 
   */
 
-  for (int cellnum = 0; cellnum < raysz; cellnum++)
-  {
+  for (int cellnum = 0; cellnum < raysz; cellnum++) {
     int raysublen = raysz - cellnum;
-    if (raysublen < numitems)
-    {
+    if (raysublen < numitems) {
       break;// break from loop
     }
     double inprob = 0;
     double factout = 0;// the chance that a previous item is in the cell
-    for (int cnt = 0; cnt < numitems; cnt++)
-    {
+    for (int cnt = 0; cnt < numitems; cnt++) {
       inprob += (1.0 - factout) / (raysublen - cnt);
       factout = inprob;
     }
@@ -182,11 +185,9 @@ static void Distribution()
   2432902008176640000]
    */
 }
-static double SubFactorial(int start, int finish)
-{
+static double SubFactorial(int start, int finish) {
   double gather = 1.0;
-  for (double cnt = start; cnt <= finish; cnt++)
-  {
+  for (double cnt = start; cnt <= finish; cnt++) {
     gather *= cnt;
   }
   return gather;

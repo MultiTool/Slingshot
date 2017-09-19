@@ -34,7 +34,14 @@
 			<Add option="-fexceptions" />
 		</Compiler>
 		<Unit filename="Base.hpp" />
+		<Unit filename="Cluster.hpp" />
 		<Unit filename="Matrix.hpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Node.hpp">
+			<Option target="&lt;{~None~}&gt;" />
+		</Unit>
+		<Unit filename="Synapse.hpp">
 			<Option target="&lt;{~None~}&gt;" />
 		</Unit>
 		<Unit filename="main.cpp" />

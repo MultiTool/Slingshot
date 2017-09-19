@@ -2,10 +2,14 @@
 
 using namespace std;
 
-#include "Matrix.hpp"
+//#include "Matrix.hpp"
+//#include "Synapse.hpp"
+#include "Node.hpp"
+#include "Cluster.hpp"
 
 int main() {
   cout << "Hello world!" << endl;
+  Synapse syn();
   MatrixPtr mat; VectPtr vec0,vec1;
   mat = new Matrix(5,5);
   mat->Init_Identity();
@@ -18,10 +22,14 @@ int main() {
     mat->Mutate();  mat->Print_Me();  printf("\n\n");
     mat->Mutate();  mat->Print_Me();  printf("\n\n");
   }
-  //mat->MultFire(vec0, vec1);
+
   mat->Iterate(vec0, vec1);
   vec1->Print_Me();
 
   delete mat; delete vec0; delete vec1;
+
+  NodePtr nd = new Node();
+  delete nd;
+
   return 0;
 }

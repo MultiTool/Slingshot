@@ -13,30 +13,28 @@ class Vect;// forward
 typedef Vect *VectPtr;
 class Vect {
 public:
-  int wdt;
+  int len;
   double* ray;
   /* ********************************************************************** */
   Vect(int wdt0) {
-    this->wdt = wdt0;
-    this->ray = allocsafe(double, wdt);
-    for (int cnt=0; cnt<this->wdt; cnt++) {
+    this->len = wdt0;
+    this->ray = allocsafe(double, this->len);
+    for (int cnt=0; cnt<this->len; cnt++) {
       this->ray[cnt]=0.01;
     }
   }
-  /* ********************************************************************** */
-  //Vect():Vect(4) { }
   /* ********************************************************************** */
   ~Vect() {
     freesafe(this->ray);
   }
   /* ********************************************************************** */
   void Copy_From(Vect* source) {
-    int ln = std::min(this->wdt,source->wdt);
+    int ln = std::min(this->len,source->len);
     std::memcpy(this->ray, source->ray, ln*sizeof(double));
   }
   /* ********************************************************************** */
   double Mult(Vect* other) {
-    int ln = std::min(this->wdt, other->wdt);
+    int ln = std::min(this->len, other->len);
     double sum=0.0;
     for (int cnt=0; cnt<ln; cnt++) {
       sum+=this->ray[cnt]*other->ray[cnt];
@@ -46,8 +44,9 @@ public:
   /* ********************************************************************** */
   double MultFire(Vect* other) {
     double Sum = this->Mult(other);
-    return this->ActFun(Sum);
+    return ActFun(Sum);
   }
+  #if false
   /* ********************************************************************** */
   double ActFun(double xin) {
     double OutVal;
@@ -55,16 +54,17 @@ public:
     return OutVal;
     /* General formula: double power = 2.0; OutVal = xin / Math.pow(1 + Math.abs(Math.pow(xin, power)), 1.0 / power); */
   }
+  #endif // false
   /* ********************************************************************** */
   void Fill(double val) {
-    int ln = this->wdt;
+    int ln = this->len;
     for (int cnt=0; cnt<ln; cnt++) {
       this->ray[cnt] = val;
     }
   }
   /* ********************************************************************** */
   void Mutate(double amp) {
-    int ln = this->wdt;
+    int ln = this->len;
     double val;//, amp = 0.3;
     for (int cnt=0; cnt<ln; cnt++) {
       val = this->ray[cnt];
@@ -74,7 +74,7 @@ public:
   }
   /* ********************************************************************** */
   void Print_Me() {
-    int ln = this->wdt;
+    int ln = this->len;
     double val=0.0;
     for (int cnt=0; cnt<ln; cnt++) {
       val = this->ray[cnt];
@@ -179,74 +179,6 @@ public:
       this->ray[cnt]->Print_Me();
     }
   }
-};
-
-/* ********************************************************************** */
-class Node;// forward
-typedef Node *NodePtr;
-class Node {
-public:
-  double FireVal, CorrVal, CorrSum;
-  void AddCorr(double val){ this->CorrSum+=val; }
-  //void AddCorr(double val){ this->CorrSum+=val; }
-};
-
-/* ********************************************************************** */
-class Synapse;// forward
-typedef Synapse *SynapsePtr;
-class Synapse {
-public:
-  NodePtr USNode, DSNode;
-  MatrixPtr genome;
-  VectPtr state;
-  double Weight;
-  int numins=5;
-  /* ********************************************************************** */
-  Synapse() {
-    state = new Vect(this->numins);
-  }
-  /* ********************************************************************** */
-  ~Synapse() {
-    delete state;
-  }
-  /* ********************************************************************** */
-  void Attach_Genome(MatrixPtr genome0) {
-    this->genome=genome0;
-  }
-  /* ********************************************************************** */
-  void Run_Process() {
-    // confusion. work out order of events.
-
-    int dex=0;
-    // first load inputs
-    state->ray[dex++] = this->DSNode->FireVal; state->ray[dex++] = this->USNode->FireVal;// upfire, downfire
-    state->ray[dex++] = this->DSNode->CorrVal;
-
-    genome->Iterate(state, state);// can we use the same vector for input and output?
-
-    dex=0;
-    // then unload outputs
-    this->DSNode->FireVal = state->ray[dex++];
-    this->USNode->AddCorr(state->ray[dex++]);
-    this->Weight += state->ray[dex++];
-    /*
-every creature:
-input upfire, downfire
-output to downfire sum, input from downfire sum, for single-layer weight change
-output to self, input from self
-output to weight change
-3 inputs, 3 outputs, more if we want more feedback.
-
-downfire sum exists to create normal of all input fires to one node. used for weight adjustment.
-
-    */
-  }
-};
-
-/* ********************************************************************** */
-class Layer {
-public:
-  Matrix *weights;
 };
 
 #if 0
