@@ -6,6 +6,8 @@ using namespace std;
 //#include "Synapse.hpp"
 #include "Node.hpp"
 #include "Cluster.hpp"
+#include "Pop.hpp"
+#include "Stack.hpp"
 
 int main() {
   cout << "Hello world!" << endl;
@@ -18,9 +20,9 @@ int main() {
   vec1 = new Vect(5);
   mat->Print_Me();  printf("\n\n");
   if (false) {
-    mat->Mutate();  mat->Print_Me();  printf("\n\n");
-    mat->Mutate();  mat->Print_Me();  printf("\n\n");
-    mat->Mutate();  mat->Print_Me();  printf("\n\n");
+    mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
+    mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
+    mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
   }
 
   mat->Iterate(vec0, vec1);

@@ -63,7 +63,7 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Mutate(double amp) {
+  void Mutate_Me(double amp) {
     int ln = this->len;
     double val;//, amp = 0.3;
     for (int cnt=0; cnt<ln; cnt++) {
@@ -167,11 +167,14 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Mutate() {
-    double amp = 0.3;
+  void Mutate_Me(double amp) {
     for (int cnt=0; cnt<this->hgt; cnt++) {
-      this->ray[cnt]->Mutate(amp);
+      this->ray[cnt]->Mutate_Me(amp);
     }
+  }
+  /* ********************************************************************** */
+  void Mutate_Me() {
+    this->Mutate_Me(0.3);
   }
   /* ********************************************************************** */
   void Print_Me() {
