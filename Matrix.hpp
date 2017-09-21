@@ -28,7 +28,7 @@ public:
     freesafe(this->ray);
   }
   /* ********************************************************************** */
-  void Copy_From(Vect* source) {
+  void Copy_From(VectPtr source) {
     int ln = std::min(this->len,source->len);
     std::memcpy(this->ray, source->ray, ln*sizeof(double));
   }
@@ -46,15 +46,6 @@ public:
     double Sum = this->Mult(other);
     return ActFun(Sum);
   }
-  #if false
-  /* ********************************************************************** */
-  double ActFun(double xin) {
-    double OutVal;
-    OutVal = xin / sqrt(1.0 + xin * xin);/* symmetrical sigmoid function in range -1.0 to 1.0. */
-    return OutVal;
-    /* General formula: double power = 2.0; OutVal = xin / Math.pow(1 + Math.abs(Math.pow(xin, power)), 1.0 / power); */
-  }
-  #endif // false
   /* ********************************************************************** */
   void Fill(double val) {
     int ln = this->len;
@@ -63,13 +54,15 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Mutate_Me(double amp) {
+  void Mutate_Me(double MRate) {
     int ln = this->len;
-    double val;//, amp = 0.3;
+    double val, amp = 0.3;
     for (int cnt=0; cnt<ln; cnt++) {
-      val = this->ray[cnt];
-      val += (frand()*2.0-1.0)*amp;
-      this->ray[cnt] = val;
+      if (frand()<MRate) {
+        val = this->ray[cnt];
+        val += (frand()*2.0-1.0)*amp;
+        this->ray[cnt] = val;
+      }
     }
   }
   /* ********************************************************************** */
@@ -102,15 +95,26 @@ public:
     midvec = new Vect(this->wdt);
   }
   /* ********************************************************************** */
-  Matrix():Matrix(4,4) {
-  }
-  /* ********************************************************************** */
   ~Matrix() {
     for (int cnt=0; cnt<this->hgt; cnt++) {
       delete this->ray[cnt];
     }
     freesafe(this->ray);
     delete this->midvec;
+  }
+  /* ********************************************************************** */
+  MatrixPtr Clone_Me() {
+    MatrixPtr child = new Matrix(this->wdt, this->hgt);
+    child->Copy_From(this);
+    return child;
+  }
+  /* ********************************************************************** */
+  void Copy_From(MatrixPtr source) {
+    VectPtr src;
+    for (int cnt=0; cnt<this->hgt; cnt++) {
+      src=source->ray[cnt];
+      this->ray[cnt]->Copy_From(src);
+    }
   }
   /* ********************************************************************** */
   void Init_Identity() {// create identity matrix
@@ -129,6 +133,15 @@ public:
       vec=this->ray[cnt];
       Fire = vec->MultFire(invec);
       outvec->ray[cnt]=Fire;
+    }
+  }
+  /* ********************************************************************** */
+  void Iterate(Vect* invec, Vect* outvec) {// recurrent firing
+    Vect tempvec(this->hgt);
+    tempvec.Copy_From(invec);// safe, more flexible
+    for (int cnt=0; cnt<3; cnt++) {// pass through 3 times total
+      this->MultFire(&tempvec, outvec);
+      tempvec.Copy_From(outvec);
     }
   }
   /* ********************************************************************** */
@@ -158,23 +171,27 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Iterate(Vect* invec, Vect* outvec) {// recurrent firing
-    Vect tempvec(this->hgt);
-    tempvec.Copy_From(invec);// safe, more flexible
-    for (int cnt=0; cnt<3; cnt++) {// pass through 3 times total
-      this->MultFire(&tempvec, outvec);
-      tempvec.Copy_From(outvec);
-    }
-  }
-  /* ********************************************************************** */
-  void Mutate_Me(double amp) {
+  void Mutate_Me(double MRate) {
     for (int cnt=0; cnt<this->hgt; cnt++) {
-      this->ray[cnt]->Mutate_Me(amp);
+      this->ray[cnt]->Mutate_Me(MRate);
+    }
+    // also allow shuffling vectors or maybe even columns here. at what rate?
+    MRate *= MRate;// reduce it by square. because why not?
+    VectPtr v0,temp;
+    int swapdex;
+    for (int cnt=0; cnt<this->hgt; cnt++) {
+      if (frand()<MRate) {
+        swapdex = std::rand()%this->hgt;
+        temp = this->ray[cnt];// swap
+        this->ray[cnt] = this->ray[swapdex];
+        this->ray[swapdex]=temp;
+      }
     }
   }
   /* ********************************************************************** */
   void Mutate_Me() {
-    this->Mutate_Me(0.3);
+    double MRate=0.3;
+    this->Mutate_Me(MRate);
   }
   /* ********************************************************************** */
   void Print_Me() {

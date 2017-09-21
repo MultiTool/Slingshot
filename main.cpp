@@ -19,7 +19,7 @@ int main() {
   vec0->Print_Me(); printf("\n\n");
   vec1 = new Vect(5);
   mat->Print_Me();  printf("\n\n");
-  if (false) {
+  if (true) {
     mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
     mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
     mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");

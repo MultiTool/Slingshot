@@ -14,6 +14,7 @@ typedef Pop *PopPtr;
 class Pop {
 public:
   uint32_t popsz;
+  OrgVec forest;
   OrgVec ScoreDexv; // for sorting
   typedef struct ScorePair { double Score[2]; };
   std::vector<ScorePair> ScoreBuf;// for recording scores even after some creatures are dead
@@ -33,6 +34,7 @@ public:
     int pcnt;
     BPNet->Create_Any_Depth();
     this->popsz = popsize;
+    forest.resize(popsize);
     ScoreDexv.resize(popsize);
     ScoreBuf.resize(popsize);
     for (pcnt=0; pcnt<popsize; pcnt++) {
@@ -51,6 +53,8 @@ public:
   }
   /* ********************************************************************** */
   void Gen(uint32_t evogens, uint32_t gencnt) { // each generation
+    double SurvivalRate=0.5;
+    Birth_And_Death(SurvivalRate);
   }
   /* ********************************************************************** */
   double AvgBeast() {
@@ -81,12 +85,12 @@ public:
     OrgPtr doomed, child;
     topcnt = 0;
     for (cnt=NumSurvivors; cnt<siz; cnt++) {
-      doomed = ScoreDexv[cnt];
+      doomed = ScoreDexv[cnt]; doomed->Doomed = true;
       delete doomed;
       child = ScoreDexv[topcnt]->Spawn();
       ScoreDexv[cnt] = child;
-      topcnt++;
-      if (topcnt>=NumSurvivors) {topcnt=0;}
+      //topcnt++;
+      if (++topcnt>=NumSurvivors) {topcnt=0;}
     }
   }
   /* ********************************************************************** */
