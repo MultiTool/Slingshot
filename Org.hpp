@@ -12,11 +12,11 @@ public:
   static const int NumScores=2;
   double Score[NumScores];
   bool Doomed = false;
+  //MatrixPtr matrix;
   static const int DefaultWdt = 5, DefaultHgt = 5;
   /* ********************************************************************** */
   Org(int wdt0, int hgt0) : Matrix(wdt0, hgt0) {
   }
-  //MatrixPtr matrix;
   /* ********************************************************************** */
   static OrgPtr Abiogenate() {
     OrgPtr child = new Org(DefaultWdt, DefaultHgt);

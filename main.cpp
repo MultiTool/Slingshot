@@ -11,6 +11,12 @@ using namespace std;
 
 int main() {
   cout << "Hello world!" << endl;
+  {
+    PopPtr pop = new Pop();
+    pop->Gen();
+    delete pop;
+    return 0;
+  }
   Synapse syn();
   MatrixPtr mat; VectPtr vec0,vec1;
   mat = new Matrix(5,5);

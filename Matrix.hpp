@@ -60,7 +60,8 @@ public:
     for (int cnt=0; cnt<ln; cnt++) {
       if (frand()<MRate) {
         val = this->ray[cnt];
-        val += (frand()*2.0-1.0)*amp;
+        //val += (frand()*2.0-1.0)*amp;
+        val = (frand()*2.0-1.0)*1.0;// amp = 1.0 here, range -1 to +1
         this->ray[cnt] = val;
       }
     }

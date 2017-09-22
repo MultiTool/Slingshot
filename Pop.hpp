@@ -19,20 +19,24 @@ public:
   typedef struct ScorePair { double Score[2]; };
   std::vector<ScorePair> ScoreBuf;// for recording scores even after some creatures are dead
 
-  StackPtr BPNet;// crucible
-  uint32_t MaxNeuroGens = 2000;
-  uint32_t DoneThresh = 32;//64; //32; //64;// 128;//16;
   double avgnumwinners = 0.0;
-  Tester *tester;
+  TesterPtr tester;// crucible
+  uint32_t GenCnt;
   /* ********************************************************************** */
   Pop() : Pop(popmax) {
   }
   /* ********************************************************************** */
   Pop(int popsize) {
-    BPNet = new Stack();
+    this->Init(popsize);
+  }
+  /* ********************************************************************** */
+  ~Pop() {
+    this->Clear();
+  }
+  /* ********************************************************************** */
+  Init(int popsize) {// is it really necessary to be able to re-init without just deleting the population?
     Org *org;
     int pcnt;
-    BPNet->Create_Any_Depth();
     this->popsz = popsize;
     forest.resize(popsize);
     ScoreDexv.resize(popsize);
@@ -41,20 +45,36 @@ public:
       org = Org::Abiogenate();
       ScoreDexv.at(pcnt) = org;
     }
+    tester=new Tester();
+    this->GenCnt=0;
   }
   /* ********************************************************************** */
-  ~Pop() {
+  Clear() {// is it really necessary to be able to clear without just deleting the population?
     size_t siz, pcnt;
     siz = ScoreDexv.size();
     for (pcnt=0; pcnt<siz; pcnt++) {
       delete ScoreDexv.at(pcnt);
     }
-    delete BPNet;
+    delete tester;
   }
   /* ********************************************************************** */
-  void Gen(uint32_t evogens, uint32_t gencnt) { // each generation
+  void Gen() { // each generation
+    this->Gen_No_Mutate();
+    this->Mutate(0.8, 0.8);
+  }
+  /* ********************************************************************** */
+  void Gen_No_Mutate() { // call this by itself to 'coast', reproduce and winnow generations without mutation.
     double SurvivalRate=0.5;
+    uint32_t popsize = this->ScoreDexv.size();
+    OrgPtr candidate;
+    for (uint32_t pcnt=0; pcnt<popsize; pcnt++) {
+      candidate = ScoreDexv[pcnt];
+      tester->Test(candidate);
+    }
+    Sort();
     Birth_And_Death(SurvivalRate);
+    printf("GenCnt:%i\n", this->GenCnt);
+    this->GenCnt++;
   }
   /* ********************************************************************** */
   double AvgBeast() {
@@ -87,9 +107,8 @@ public:
     for (cnt=NumSurvivors; cnt<siz; cnt++) {
       doomed = ScoreDexv[cnt]; doomed->Doomed = true;
       delete doomed;
-      child = ScoreDexv[topcnt]->Spawn();
+      child = ScoreDexv[topcnt]->Spawn();// Whenever one dies, replace it with the child of another.
       ScoreDexv[cnt] = child;
-      //topcnt++;
       if (++topcnt>=NumSurvivors) {topcnt=0;}
     }
   }
