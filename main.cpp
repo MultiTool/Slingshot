@@ -14,7 +14,7 @@ int main() {
   srand (time(NULL));
   {
     PopPtr pop = new Pop();
-    for (int gcnt=0;gcnt<1000;gcnt++){
+    for (int gcnt=0;gcnt<10000;gcnt++){
       pop->Gen();
     }
     delete pop;

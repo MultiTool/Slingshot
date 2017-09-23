@@ -62,10 +62,11 @@ public:
   /* ********************************************************************** */
   void Test(OrgPtr candidate) override {
     // Run the candidate and the model and compare their outputs.
-    int Iterations=3;
+    int Iterations=1;
     double val0, val1, diff;
     double range = 2.0;
     double score = 1.0;
+    this->invec->Mutate_Me(1.0);// mutate 100%
     model->Iterate(invec, Iterations, outvec0);
     candidate->Iterate(invec, Iterations, outvec1);
     for (int cnt=0;cnt<this->MxHgt;cnt++){
