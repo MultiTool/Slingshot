@@ -9,30 +9,76 @@
 class Tester;// forward
 typedef Tester *TesterPtr;
 typedef std::vector<TesterPtr> TesterVec;
-class Tester {//: public Stack {// to do: make this a wrapper around the network instead of its subclass.
+class Tester {// base class, does not do anything by itself
 public:
-  StackPtr BPNet;// crucible
-
-  MatrixPtr model;// alternate crucible
   OrgPtr org;
-  uint32_t MaxNeuroGens = 2000;
-  uint32_t DoneThresh = 32;//64; //32; //64;// 128;//16;
   /* ********************************************************************** */
   Tester(){
-    BPNet = new Stack();
-    BPNet->Create_Any_Depth();
-    model = new Matrix(5, 5);
   }
   /* ********************************************************************** */
   ~Tester(){
-    delete BPNet;
+  }
+  /* ********************************************************************** */
+  virtual void Test() {
+  }
+  /* ********************************************************************** */
+  virtual void Test(OrgPtr candidate) {
+  }
+  /* ********************************************************************** */
+  virtual double Dry_Run_Test() {
+    return 0;
+  }
+};
+
+/* ********************************************************************** */
+class TesterMx;// forward
+typedef TesterMx *TesterMxPtr;
+typedef std::vector<TesterMxPtr> TesterMxVec;
+class TesterMx : public Tester {// evolve to match an existing matrix
+public:
+  MatrixPtr model;// alternate crucible
+  /* ********************************************************************** */
+  TesterMx(int MxWdt, int MxHgt){
+    model = new Matrix(MxWdt, MxHgt);
+  }
+  /* ********************************************************************** */
+  ~TesterMx(){
     delete model;
   }
   /* ********************************************************************** */
-  void Test() {
+  void Test() override {
   }
   /* ********************************************************************** */
-  void Test(OrgPtr candidate) {
+  void Test(OrgPtr candidate) override {
+    // to do: run the BPNet, judge how well it has learned and assign the score to the candidate.
+    // or alternatively, run the candidate and the model and compare their outputs.
+    candidate->Score[0]=1;//dummy assignment
+  }
+};
+
+/* ********************************************************************** */
+class TesterNet;// forward
+typedef TesterNet *TesterNetPtr;
+typedef std::vector<TesterNetPtr> TesterNetVec;
+class TesterNet : public Tester {// evolve to create a backpropagation learning rule
+public:
+  StackPtr BPNet;// crucible
+  uint32_t MaxNeuroGens = 2000;
+  uint32_t DoneThresh = 32;//64; //32; //64;// 128;//16;
+  /* ********************************************************************** */
+  TesterNet(){
+    BPNet = new Stack();
+    BPNet->Create_Any_Depth();
+  }
+  /* ********************************************************************** */
+  ~TesterNet(){
+    delete BPNet;
+  }
+  /* ********************************************************************** */
+  void Test() override {
+  }
+  /* ********************************************************************** */
+  void Test(OrgPtr candidate) override {
     this->BPNet->Attach_Genome(candidate);
     // to do: run the BPNet, judge how well it has learned and assign the score to the candidate.
     // or alternatively, run the candidate and the model and compare their outputs.
