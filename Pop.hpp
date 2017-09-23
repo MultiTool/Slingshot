@@ -80,6 +80,15 @@ public:
     this->GenCnt++;
   }
   /* ********************************************************************** */
+  void Print_Results() {
+    printf("Print_Results\n");
+    printf("Model Matrix\n");
+    tester->Print_Me();
+    printf("Top Matrix\n");
+    OrgPtr TopOrg = ScoreDexv[0];
+    TopOrg->Print_Me();
+  }
+  /* ********************************************************************** */
   double AvgBeast() {
     size_t siz = ScoreDexv.size();
     double sum = 0.0;

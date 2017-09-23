@@ -25,6 +25,10 @@ public:
   virtual void Test(OrgPtr candidate) {
   }
   /* ********************************************************************** */
+  virtual void Print_Me() {
+    printf("Tester base class should be overridden.\n");
+  }
+  /* ********************************************************************** */
   virtual double Dry_Run_Test() {
     return 0;
   }
@@ -62,7 +66,7 @@ public:
   /* ********************************************************************** */
   void Test(OrgPtr candidate) override {
     // Run the candidate and the model and compare their outputs.
-    int Iterations=1;
+    int Iterations=3;
     double val0, val1, diff;
     double range = 2.0;
     double score = 1.0;
@@ -76,6 +80,10 @@ public:
       score*=(range-diff)/range;
     }
     candidate->Score[0]=score;
+  }
+  /* ********************************************************************** */
+  void Print_Me() override {
+    this->model->Print_Me();
   }
 };
 
@@ -106,6 +114,10 @@ public:
     // to do: run the BPNet, judge how well it has learned and assign the score to the candidate.
     // or alternatively, run the candidate and the model and compare their outputs.
     candidate->Score[0]=1;//dummy assignment
+  }
+  /* ********************************************************************** */
+  void Print_Me() override {
+    printf("TesterNet class not implemented yet.\n");
   }
   /* ********************************************************************** */
   double Dry_Run_Test() {
