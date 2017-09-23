@@ -37,22 +37,44 @@ typedef std::vector<TesterMxPtr> TesterMxVec;
 class TesterMx : public Tester {// evolve to match an existing matrix
 public:
   MatrixPtr model;// alternate crucible
+  VectPtr invec, outvec0, outvec1;
+  int MxWdt, MxHgt;
   /* ********************************************************************** */
-  TesterMx(int MxWdt, int MxHgt){
-    model = new Matrix(MxWdt, MxHgt);
+  TesterMx(int MxWdt0, int MxHgt0){
+    this->MxWdt=MxHgt0; this->MxHgt=MxHgt0;
+    this->model = new Matrix(MxWdt0, MxHgt0);
+    this->model->Mutate_Me(1.0);// mutate 100%
+    this->invec = new Vect(MxWdt0);
+    this->invec->Mutate_Me(1.0);// mutate 100%
+    this->outvec0 = new Vect(MxHgt0);
+    this->outvec1 = new Vect(MxHgt0);
   }
   /* ********************************************************************** */
   ~TesterMx(){
-    delete model;
+    delete this->outvec1;
+    delete this->outvec0;
+    delete this->invec;
+    delete this->model;
   }
   /* ********************************************************************** */
   void Test() override {
   }
   /* ********************************************************************** */
   void Test(OrgPtr candidate) override {
-    // to do: run the BPNet, judge how well it has learned and assign the score to the candidate.
-    // or alternatively, run the candidate and the model and compare their outputs.
-    candidate->Score[0]=1;//dummy assignment
+    // Run the candidate and the model and compare their outputs.
+    int Iterations=3;
+    double val0, val1, diff;
+    double range = 2.0;
+    double score = 1.0;
+    model->Iterate(invec, Iterations, outvec0);
+    candidate->Iterate(invec, Iterations, outvec1);
+    for (int cnt=0;cnt<this->MxHgt;cnt++){
+      val0 = outvec0->ray[cnt];
+      val1 = outvec1->ray[cnt];
+      diff=std::fabs(val0-val1);
+      score*=(range-diff)/range;
+    }
+    candidate->Score[0]=score;
   }
 };
 

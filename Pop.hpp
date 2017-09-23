@@ -22,6 +22,7 @@ public:
   double avgnumwinners = 0.0;
   TesterPtr tester;// crucible
   uint32_t GenCnt;
+  const double MutRate=0.3;//0.8
   /* ********************************************************************** */
   Pop() : Pop(popmax) {
   }
@@ -45,7 +46,7 @@ public:
       org = Org::Abiogenate();
       ScoreDexv.at(pcnt) = org;
     }
-    tester=new Tester();
+    tester=new TesterMx(Org::DefaultWdt, Org::DefaultHgt);
     this->GenCnt=0;
   }
   /* ********************************************************************** */
@@ -60,7 +61,7 @@ public:
   /* ********************************************************************** */
   void Gen() { // each generation
     this->Gen_No_Mutate();
-    this->Mutate(0.8, 0.8);
+    this->Mutate(MutRate, MutRate);
   }
   /* ********************************************************************** */
   void Gen_No_Mutate() { // call this by itself to 'coast', reproduce and winnow generations without mutation.
@@ -72,8 +73,10 @@ public:
       tester->Test(candidate);
     }
     Sort();
+    OrgPtr TopOrg = ScoreDexv[0];
+    double TopScore = TopOrg->Score[0];
     Birth_And_Death(SurvivalRate);
-    printf("GenCnt:%i\n", this->GenCnt);
+    printf("GenCnt:%i, TopScore:%f\n", this->GenCnt, TopScore);
     this->GenCnt++;
   }
   /* ********************************************************************** */

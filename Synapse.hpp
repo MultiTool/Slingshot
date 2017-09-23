@@ -66,7 +66,7 @@ public:
     state->ray[dex++] = this->SumFireSq;
     for (int cnt=0; cnt<dex; cnt++) { state->ray[cnt]*=Factor; }// squeeze
 
-    genome->Iterate(state, state);// can we use the same vector for input and output?
+    genome->Iterate(state, 3, state);// can we use the same vector for input and output?
 
     dex=0;
 

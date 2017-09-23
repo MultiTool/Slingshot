@@ -11,9 +11,12 @@ using namespace std;
 
 int main() {
   cout << "Hello world!" << endl;
+  srand (time(NULL));
   {
     PopPtr pop = new Pop();
-    pop->Gen();
+    for (int gcnt=0;gcnt<1000;gcnt++){
+      pop->Gen();
+    }
     delete pop;
     return 0;
   }
@@ -31,7 +34,7 @@ int main() {
     mat->Mutate_Me();  mat->Print_Me();  printf("\n\n");
   }
 
-  mat->Iterate(vec0, vec1);
+  mat->Iterate(vec0, 3, vec1);
   vec1->Print_Me();
 
   delete mat; delete vec0; delete vec1;

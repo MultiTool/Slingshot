@@ -137,10 +137,10 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Iterate(Vect* invec, Vect* outvec) {// recurrent firing
+  void Iterate(Vect* invec, int NumCycles, Vect* outvec) {// recurrent firing
     Vect tempvec(this->hgt);
     tempvec.Copy_From(invec);// safe, more flexible
-    for (int cnt=0; cnt<3; cnt++) {// pass through 3 times total
+    for (int cnt=0; cnt<NumCycles; cnt++) {// pass through 3 times total
       this->MultFire(&tempvec, outvec);
       tempvec.Copy_From(outvec);
     }
