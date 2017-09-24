@@ -19,6 +19,9 @@ public:
   ~Tester(){
   }
   /* ********************************************************************** */
+  virtual void Reset_Input() {
+  }
+  /* ********************************************************************** */
   virtual void Test() {
   }
   /* ********************************************************************** */
@@ -47,9 +50,9 @@ public:
   TesterMx(int MxWdt0, int MxHgt0){
     this->MxWdt=MxHgt0; this->MxHgt=MxHgt0;
     this->model = new Matrix(MxWdt0, MxHgt0);
-    this->model->Mutate_Me(1.0);// mutate 100%
+    this->model->Rand_Init();// mutate 100%
     this->invec = new Vect(MxWdt0);
-    this->invec->Mutate_Me(1.0);// mutate 100%
+    this->invec->Rand_Init();// mutate 100%
     this->outvec0 = new Vect(MxHgt0);
     this->outvec1 = new Vect(MxHgt0);
   }
@@ -61,6 +64,10 @@ public:
     delete this->model;
   }
   /* ********************************************************************** */
+  void Reset_Input() override {
+    this->invec->Rand_Init();// mutate 100%
+  }
+  /* ********************************************************************** */
   void Test() override {
   }
   /* ********************************************************************** */
@@ -69,15 +76,19 @@ public:
     int Iterations=3;
     double val0, val1, diff;
     double range = 2.0;
-    double score = 1.0;
-    this->invec->Mutate_Me(1.0);// mutate 100%
+    double singlescore, score = 1.0;
+    //this->invec->Rand_Init();// mutate 100%
     model->Iterate(invec, Iterations, outvec0);
     candidate->Iterate(invec, Iterations, outvec1);
     for (int cnt=0;cnt<this->MxHgt;cnt++){
-      val0 = outvec0->ray[cnt];
-      val1 = outvec1->ray[cnt];
+//      val0 =  std::copysign(1.0, outvec0->ray[cnt]);
+//      val1 =  std::copysign(1.0, outvec1->ray[cnt]);
+      val0 =  outvec0->ray[cnt];
+      val1 =  outvec1->ray[cnt];
       diff=std::fabs(val0-val1);
-      score*=(range-diff)/range;
+      singlescore=(range-diff)/range;
+      //singlescore = std::copysign(1.0, singlescore);
+      score*=singlescore;
     }
     candidate->Score[0]=score;
   }

@@ -30,9 +30,9 @@ public:
     return child;
   }
   /* ********************************************************************** */
-  void Rand_Init(){
-    this->Mutate_Me(1.0);// mutate 100%
-  }
+//  void Rand_Init(){
+//    this->m>Rand_Init();// mutate 100%
+//  }
   /* ********************************************************************** */
 //  void Mutate_Me(double MRate) {// use this if matrix is a property of org
 //    this->Mutate_Me(MRate);

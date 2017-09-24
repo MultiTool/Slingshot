@@ -68,6 +68,7 @@ public:
     double SurvivalRate=0.5;
     uint32_t popsize = this->ScoreDexv.size();
     OrgPtr candidate;
+    tester->Reset_Input();
     for (uint32_t pcnt=0; pcnt<popsize; pcnt++) {
       candidate = ScoreDexv[pcnt];
       tester->Test(candidate);

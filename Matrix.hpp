@@ -60,10 +60,20 @@ public:
     for (int cnt=0; cnt<ln; cnt++) {
       if (frand()<MRate) {
         val = this->ray[cnt];
-        //val += (frand()*2.0-1.0)*amp;
-        val = (frand()*2.0-1.0)*1.0;// amp = 1.0 here, range -1 to +1
+        val += (frand()*2.0-1.0)*amp;
+        //val = (frand()*2.0-1.0)*1.0;// amp = 1.0 here, range -1 to +1
         this->ray[cnt] = val;
       }
+    }
+  }
+  /* ********************************************************************** */
+  void Rand_Init() {
+    int ln = this->len;
+    double val;
+    for (int cnt=0; cnt<ln; cnt++) {
+      val = this->ray[cnt];
+      val = (frand()*2.0-1.0);// amp = 1.0 here, range -1 to +1
+      this->ray[cnt] = val;
     }
   }
   /* ********************************************************************** */
@@ -169,6 +179,12 @@ public:
     for (int cnt=1; cnt<3; cnt++) {// pass through 3 times total
       this->MultFire(&tempvec, outvec);
       tempvec.Copy_From(outvec);
+    }
+  }
+  /* ********************************************************************** */
+  void Rand_Init() {
+    for (int cnt=0; cnt<this->hgt; cnt++) {
+      this->ray[cnt]->Rand_Init();
     }
   }
   /* ********************************************************************** */
