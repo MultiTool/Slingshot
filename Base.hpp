@@ -79,11 +79,18 @@ public:
     return UidSource2;
   }
 };
-
+/* ********************************************************************** */
 double frand() {
   return  ((double)rand()) / ((double)RAND_MAX);
 }
-
+/* ********************************************************************** */
+double frand_nonzero() {
+  double val;
+  do {
+    val = ((double)rand()) / ((double)RAND_MAX);
+  }while (std::fabs(val)<0.1);
+  return val;
+}
 /* ********************************************************************** */
 double ActFun(double xin) {
   double OutVal;

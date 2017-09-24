@@ -14,11 +14,11 @@ int main() {
   srand (time(NULL));
   {
     PopPtr pop = new Pop();
-    for (int gcnt=0;gcnt<10000;gcnt++){
+    for (int gcnt=0;gcnt<50000;gcnt++){
       pop->Gen();
     }
     pop->Print_Results();
-    for (int gcnt=0;gcnt<10;gcnt++){
+    for (int gcnt=0;gcnt<50;gcnt++){
       pop->Gen_No_Mutate();// coast, no mutations
     }
     pop->Print_Results();

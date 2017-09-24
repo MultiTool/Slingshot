@@ -72,7 +72,8 @@ public:
     double val;
     for (int cnt=0; cnt<ln; cnt++) {
       val = this->ray[cnt];
-      val = (frand()*2.0-1.0);// amp = 1.0 here, range -1 to +1
+      val = (frand_nonzero()*2.0-1.0);// amp = 1.0 here, range -1 to +1
+      //val = (frand()*2.0-1.0);// amp = 1.0 here, range -1 to +1
       this->ray[cnt] = val;
     }
   }

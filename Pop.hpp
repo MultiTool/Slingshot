@@ -22,7 +22,9 @@ public:
   double avgnumwinners = 0.0;
   TesterPtr tester;// crucible
   uint32_t GenCnt;
-  const double MutRate=0.3;//0.8
+  const double MutRate=0.1;//0.3;//0.8
+  double SurvivalRate=0.5;
+  size_t NumSurvivors;
   /* ********************************************************************** */
   Pop() : Pop(popmax) {
   }
@@ -35,7 +37,7 @@ public:
     this->Clear();
   }
   /* ********************************************************************** */
-  Init(int popsize) {// is it really necessary to be able to re-init without just deleting the population?
+  void Init(int popsize) {// is it really necessary to be able to re-init without just deleting the population?
     Org *org;
     int pcnt;
     this->popsz = popsize;
@@ -48,9 +50,10 @@ public:
     }
     tester=new TesterMx(Org::DefaultWdt, Org::DefaultHgt);
     this->GenCnt=0;
+    NumSurvivors = popsize * SurvivalRate;
   }
   /* ********************************************************************** */
-  Clear() {// is it really necessary to be able to clear without just deleting the population?
+  void Clear() {// is it really necessary to be able to clear without just deleting the population?
     size_t siz, pcnt;
     siz = ScoreDexv.size();
     for (pcnt=0; pcnt<siz; pcnt++) {
@@ -65,7 +68,6 @@ public:
   }
   /* ********************************************************************** */
   void Gen_No_Mutate() { // call this by itself to 'coast', reproduce and winnow generations without mutation.
-    double SurvivalRate=0.5;
     uint32_t popsize = this->ScoreDexv.size();
     OrgPtr candidate;
     tester->Reset_Input();
@@ -76,8 +78,9 @@ public:
     Sort();
     OrgPtr TopOrg = ScoreDexv[0];
     double TopScore = TopOrg->Score[0];
-    Birth_And_Death(SurvivalRate);
-    printf("GenCnt:%i, TopScore:%f\n", this->GenCnt, TopScore);
+    double TopDigiScore = TopOrg->Score[1];
+    Birth_And_Death();
+    printf("GenCnt:%i, TopScore:%f, TopDigiScore::%f\n", this->GenCnt, TopScore, TopDigiScore);
     this->GenCnt++;
   }
   /* ********************************************************************** */
@@ -111,9 +114,8 @@ public:
     std::sort (ScoreDexv.begin(), ScoreDexv.end(), DescendingScore);
   }
   /* ********************************************************************** */
-  void Birth_And_Death(double SurvivalRate) {
+  void Birth_And_Death() {
     size_t siz = ScoreDexv.size();
-    size_t NumSurvivors = siz * SurvivalRate;
     size_t topcnt, cnt;
     OrgPtr doomed, child;
     topcnt = 0;
@@ -140,11 +142,11 @@ public:
     OrgPtr org;
     size_t LastOrg;
     size_t siz = this->ScoreDexv.size(); LastOrg = siz-1;
-    for (int cnt=0; cnt<LastOrg; cnt++) {
-      if (frand()<Pop_MRate) {
+    for (int cnt=this->NumSurvivors; cnt<LastOrg; cnt++) {
+      //if (frand()<Pop_MRate) {
         org = this->ScoreDexv[cnt];
         org->Mutate_Me(Org_MRate);
-      }
+      //}
     }
     org = this->ScoreDexv[LastOrg];// very last mutant is 100% randomized, to introduce 'new blood'
     org->Rand_Init();
