@@ -15,7 +15,7 @@ public:
   }
   /* ********************************************************************** */
   ~Stack() {
-    for (int lcnt=0; lcnt<Layers.size(); lcnt++) {
+    for (size_t lcnt=0; lcnt<Layers.size(); lcnt++) {
       delete Layers.at(lcnt);
     }
   }
@@ -55,7 +55,7 @@ public:
   }
   /* ********************************************************************** */
   void Fire_Gen() {
-    int lcnt;
+    size_t lcnt;
     ClusterPtr clnow;
     clnow = Layers.at(0);
     for (lcnt=1; lcnt<Layers.size(); lcnt++) {
@@ -87,11 +87,19 @@ public:
   /* ********************************************************************** */
   void Randomize_Weights() {
     ClusterPtr clnow;
-    size_t lcnt;
     size_t siz = this->Layers.size();
-    for (lcnt=0; lcnt<siz; lcnt++) {
+    for (size_t lcnt=0; lcnt<siz; lcnt++) {
       clnow = Layers.at(lcnt);
       clnow->Randomize_Weights();
+    }
+  }
+  /* ********************************************************************** */
+  void Reset() {// reset network back to original random values
+    ClusterPtr clnow;
+    size_t siz = this->Layers.size();
+    for (size_t lcnt=0; lcnt<siz; lcnt++) {
+      clnow = Layers.at(lcnt);
+      clnow->Reset();
     }
   }
   /* ********************************************************************** */

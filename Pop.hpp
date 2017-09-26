@@ -16,15 +16,14 @@ public:
   uint32_t popsz;
   OrgVec forest;
   OrgVec ScoreDexv; // for sorting
-  typedef struct ScorePair { double Score[2]; };
-  std::vector<ScorePair> ScoreBuf;// for recording scores even after some creatures are dead
 
   double avgnumwinners = 0.0;
   TesterPtr tester;// crucible
   uint32_t GenCnt;
-  const double MutRate=0.1;//0.3;//0.8
-  double SurvivalRate=0.5;
+  const double MutRate=0.2;//0.2;//0.3;//0.8
+  double SurvivalRate=0.2;//0.5;
   size_t NumSurvivors;
+  double SumScores=0,AvgScore=0.0;
   /* ********************************************************************** */
   Pop() : Pop(popmax) {
   }
@@ -43,14 +42,28 @@ public:
     this->popsz = popsize;
     forest.resize(popsize);
     ScoreDexv.resize(popsize);
-    ScoreBuf.resize(popsize);
     for (pcnt=0; pcnt<popsize; pcnt++) {
       org = Org::Abiogenate();
       ScoreDexv.at(pcnt) = org;
     }
-    tester=new TesterMx(Org::DefaultWdt, Org::DefaultHgt);
+    if (true){
+      tester=new TesterMx(Org::DefaultWdt, Org::DefaultHgt);
+    }else{
+      tester=new TesterNet();
+    }
     this->GenCnt=0;
     NumSurvivors = popsize * SurvivalRate;
+    SumScores=0;
+  }
+  /* ********************************************************************** */
+  void Restart() {// re-initialize the population genome without changing the tester or the test
+    Org *org;
+    size_t pcnt, popsize = ScoreDexv.size();
+    for (pcnt=0; pcnt<popsize; pcnt++) {
+      org = ScoreDexv.at(pcnt);
+      org->Rand_Init();
+    }
+    this->GenCnt=0; SumScores=0.0; AvgScore=0.0;
   }
   /* ********************************************************************** */
   void Clear() {// is it really necessary to be able to clear without just deleting the population?
@@ -70,7 +83,9 @@ public:
   void Gen_No_Mutate() { // call this by itself to 'coast', reproduce and winnow generations without mutation.
     uint32_t popsize = this->ScoreDexv.size();
     OrgPtr candidate;
-    tester->Reset_Input();
+    if (false){
+      tester->Reset_Input();
+    }
     for (uint32_t pcnt=0; pcnt<popsize; pcnt++) {
       candidate = ScoreDexv[pcnt];
       tester->Test(candidate);
@@ -80,23 +95,34 @@ public:
     double TopScore = TopOrg->Score[0];
     double TopDigiScore = TopOrg->Score[1];
     Birth_And_Death();
-    printf("GenCnt:%i, TopScore:%f, TopDigiScore::%f\n", this->GenCnt, TopScore, TopDigiScore);
+    SumScores+=TopDigiScore;
+    //AvgScore=SumScores/this->GenCnt;
+    AvgScore=(AvgScore*0.9) + (TopDigiScore*0.1);
+    //printf("GenCnt:%i, TopScore:%f, AvgScore:%f, TopDigiScore::%f\n", this->GenCnt, TopScore, AvgScore, TopDigiScore);
     this->GenCnt++;
   }
   /* ********************************************************************** */
   void Print_Results() {
     printf("Print_Results\n");
-    printf("Model Matrix\n");
-    tester->Print_Me();
-    printf("Top Matrix\n");
     OrgPtr TopOrg = ScoreDexv[0];
-    TopOrg->Print_Me();
+
+    if (false){
+      printf("Model Matrix\n");
+      tester->Print_Me();
+      printf("Top Matrix\n");
+      TopOrg->Print_Me();
+    }
+
+    double TopScore = TopOrg->Score[0];
+    double TopDigiScore = TopOrg->Score[1];
+    AvgScore=(AvgScore*0.9) + (TopDigiScore*0.1);
+    printf("GenCnt:%i, TopScore:%f, AvgScore:%f, TopDigiScore::%f\n", this->GenCnt, TopScore, AvgScore, TopDigiScore);
   }
   /* ********************************************************************** */
   double AvgBeast() {
     size_t siz = ScoreDexv.size();
     double sum = 0.0;
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       sum += ScoreDexv[cnt]->Score[0];
     }
     sum /= (double)siz;
@@ -130,7 +156,7 @@ public:
   /* ********************************************************************** */
   void Mutate_Sorted(double Pop_MRate, double Org_MRate) {
     size_t siz = this->ScoreDexv.size();
-    for (int cnt=16; cnt<siz; cnt++) {
+    for (size_t cnt=16; cnt<siz; cnt++) {
       if (frand()<Pop_MRate) {
         OrgPtr org = this->ScoreDexv[cnt];
         org->Mutate_Me(Org_MRate);
@@ -142,10 +168,10 @@ public:
     OrgPtr org;
     size_t LastOrg;
     size_t siz = this->ScoreDexv.size(); LastOrg = siz-1;
-    for (int cnt=this->NumSurvivors; cnt<LastOrg; cnt++) {
+    for (size_t cnt=this->NumSurvivors; cnt<LastOrg; cnt++) {
       //if (frand()<Pop_MRate) {
-        org = this->ScoreDexv[cnt];
-        org->Mutate_Me(Org_MRate);
+      org = this->ScoreDexv[cnt];
+      org->Mutate_Me(Org_MRate);
       //}
     }
     org = this->ScoreDexv[LastOrg];// very last mutant is 100% randomized, to introduce 'new blood'

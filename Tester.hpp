@@ -4,6 +4,7 @@
 #include "Org.hpp"
 #include "Cluster.hpp"
 #include "Stack.hpp"
+#include "TrainingSets.hpp"
 
 /* ********************************************************************** */
 class Tester;// forward
@@ -16,7 +17,7 @@ public:
   Tester(){
   }
   /* ********************************************************************** */
-  ~Tester(){
+  virtual ~Tester(){
   }
   /* ********************************************************************** */
   virtual void Reset_Input() {
@@ -45,7 +46,8 @@ class TesterMx : public Tester {// evolve to match an existing matrix
 public:
   MatrixPtr model;// alternate crucible
   VectPtr outvec0, outvec1;
-  const static int Num_Invecs = 10;
+  int Iterations=3;
+  const static int Num_Invecs = 20;
   VectPtr invec[Num_Invecs];
   int MxWdt, MxHgt;
   /* ********************************************************************** */
@@ -64,7 +66,6 @@ public:
   ~TesterMx(){
     delete this->outvec1;
     delete this->outvec0;
-    delete this->invec;
     for (int vcnt=0;vcnt<Num_Invecs;vcnt++){
       delete this->invec[vcnt];
     }
@@ -82,7 +83,6 @@ public:
   /* ********************************************************************** */
   void Test(OrgPtr candidate) override {
     // Run the candidate and the model and compare their outputs.
-    int Iterations=3;
     double val0, val1, diff;
     double digival0, digival1, digidiff, digiscore=0;
     double range = 2.0;
@@ -104,8 +104,9 @@ public:
         score*=singlescore;
       }
     }
-    candidate->Score[0]=score;
-    candidate->Score[1]=digiscore;
+    candidate->Score[0]=score; candidate->Score[1]=digiscore;
+
+    // candidate->Score[0]=digiscore; candidate->Score[1]=score;
   }
   /* ********************************************************************** */
   void Print_Me() override {
@@ -122,14 +123,23 @@ public:
   StackPtr BPNet;// crucible
   uint32_t MaxNeuroGens = 2000;
   uint32_t DoneThresh = 32;//64; //32; //64;// 128;//16;
+  MatrixPtr model;// alternate crucible
+  VectPtr outvec0, outvec1;
+  TrainingSetList TrainingSets;
   /* ********************************************************************** */
   TesterNet(){
     BPNet = new Stack();
     BPNet->Create_Any_Depth();
+    BPNet->Randomize_Weights();
+    TrainingSets.All_Truth(2);
   }
   /* ********************************************************************** */
   ~TesterNet(){
     delete BPNet;
+  }
+  /* ********************************************************************** */
+  void Reset_Input() override {// once per generation
+    BPNet->Randomize_Weights();
   }
   /* ********************************************************************** */
   void Test() override {
@@ -137,13 +147,51 @@ public:
   /* ********************************************************************** */
   void Test(OrgPtr candidate) override {
     this->BPNet->Attach_Genome(candidate);
+    TrainSetPtr TruthTable;
+    IOPairPtr iopair;
+    size_t siz = TrainingSets.size();
+    for (size_t TTableCnt=0; TTableCnt<siz; TTableCnt++){
+      TruthTable = TrainingSets.at(TTableCnt);
+      //TruthTable->Shuffle();// maybe do this?
+      this->BPNet->Reset();
+      {// this block will be the training loop
+        for (size_t paircnt=0; paircnt<TruthTable->size(); paircnt++){// loop through all iopairs of truth table, and train here.
+          iopair = TruthTable->at(paircnt);
+          this->BPNet->Load_Inputs(&(iopair->invec));// need invec here
+          this->BPNet->Fire_Gen();
+          this->BPNet->Backprop(&(iopair->goalvec));// need goalvec here
+        }
+      }
+    }
+    //printf("TesterNet class not implemented yet.\n");
     // to do: run the BPNet, judge how well it has learned and assign the score to the candidate.
     // or alternatively, run the candidate and the model and compare their outputs.
+    /*
+    for each generation, the population is given a network initialized with random weights.
+    for each org test, the weights must be re-set to the same start state, and then the org trains them.
+
+    how often is the training set redefined?  hm, there should be multiple training sets per single org-test. XOR, AND, OR, NXOR, etc.
+    so how often should the set of training sets be redefined?  maybe never?  there are only so many digital ones possible.
+    maybe we define all possible truth tables for a given number of inputs, and that becomes the set of training sets.
+
+    and how often should the weights starter state be genuinely randomized, vs reset to that starter state?
+    once for every generation, on Reset_Input?
+
+    ok, so the network is initialized with random weights.
+    how to store the initial random weights?  clone whole network?  store old values in each synapse?
+    network.Copy_From other network (no, topologies may be different).
+    TestNet = NetworkDefinition.Clone_Me(); for each run.
+    implementing clone for a whole topology could be complicated.
+
+    but resetting a network also means resetting all fires etc.
+
+    */
     candidate->Score[0]=1;//dummy assignment
+    candidate->Score[1]=1;//dummy assignment
   }
   /* ********************************************************************** */
   void Print_Me() override {
-    printf("TesterNet class not implemented yet.\n");
+    //printf("TesterNet class not implemented yet.\n");
   }
   /* ********************************************************************** */
   double Dry_Run_Test() {

@@ -16,7 +16,7 @@ public:
   }
   /* ********************************************************************** */
   ~Node() {
-    for (int cnt=0; cnt<this->Working_Ins.size(); cnt++) {
+    for (size_t cnt=0; cnt<this->Working_Ins.size(); cnt++) {
       delete this->Working_Ins.at(cnt);
     }
     this->Working_Ins.clear();// clearing probably not necessary
@@ -28,7 +28,7 @@ public:
   void Attach_Genome(MatrixPtr genome0) {
     SynapsePtr ups;
     size_t siz = this->Working_Ins.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ups = this->Working_Ins.at(cnt);
       ups->Attach_Genome(genome0);
     }
@@ -48,9 +48,18 @@ public:
   void Randomize_Weights() {
     SynapsePtr ups;
     size_t siz = this->Working_Ins.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ups = this->Working_Ins.at(cnt);
       ups->Randomize_Weight();
+    }
+  }
+  /* ********************************************************************** */
+  void Reset() {// reset network back to original random values
+    SynapsePtr ups;
+    size_t siz = this->Working_Ins.size();
+    for (size_t cnt=0; cnt<siz; cnt++) {
+      ups = this->Working_Ins.at(cnt);
+      ups->Reset();
     }
   }
   /* ********************************************************************** */
@@ -58,21 +67,21 @@ public:
     SynapsePtr ups;
     double Fire, Sum=0, SumSq=0.0;
     size_t siz = this->Working_Ins.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ups = this->Working_Ins.at(cnt);
       Fire=ups->GetWeightedFire();
       Sum+=Fire;
       SumSq+=ups->FireVal*ups->FireVal;
     }
-    this->SumFireSq = SumSq;
     this->FireVal = ActFun(Sum);
+    this->SumFireSq = SumSq;
   }
   /* ********************************************************************** */
   void Push_Fire() {
     SynapsePtr downs;
     double MyFire=this->FireVal;
     size_t siz = this->Working_Outs.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       downs = this->Working_Outs.at(cnt);
       downs->Assign_Fire(MyFire);
     }
@@ -81,7 +90,7 @@ public:
   void Push_Correctors_Backward() {
     SynapsePtr ups;
     size_t siz = this->Working_Ins.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ups = this->Working_Ins.at(cnt);
       //ups->Corrector = this->Corrector;
       ups->DSCorrVal = this->Corrector;
@@ -89,15 +98,13 @@ public:
   }
   /* ********************************************************************** */
   void Pull_Correctors() {
-    double ClipRad = 20.0;
     SynapsePtr downs;
     double CorrSum;
-    double SurfParams[2];
     double MyFire=this->FireVal;
     double Fire_Deriv = 1.0;
     CorrSum = 0.0;
     size_t siz = this->Working_Outs.size();
-    for (int cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       downs = this->Working_Outs.at(cnt);
       //CorrSum += downs->GetWeightedCorrector();
       CorrSum += downs->GetGenCorrector();
@@ -116,7 +123,7 @@ public:
     double SumSq=0.0;// wrong. want to replace this with matrix decision
     SumSq = this->SumFireSq;
     if (true) {
-      for (int cnt=0; cnt<siz; cnt++) {// then divide all upstream fires by their sum-of-squares.  then mult that vector by corrector value and add to weight.
+      for (size_t cnt=0; cnt<siz; cnt++) {// then divide all upstream fires by their sum-of-squares.  then mult that vector by corrector value and add to weight.
         ups = this->Working_Ins.at(cnt);
         ups->Run_Process();// this applies weight changes, and creates the passback value.
       }
@@ -127,13 +134,13 @@ public:
     then mult the recog vector by the corrector (and by lrate) and add it to my input weights.
     */
     if (false) {
-      for (int cnt=0; cnt<siz; cnt++) {// first get sum of squares of upstream fires
+      for (size_t cnt=0; cnt<siz; cnt++) {// first get sum of squares of upstream fires
         fire = this->Working_Ins.at(cnt)->FireVal;
         SumSq += fire * fire;
       }
     }
     SumSq = this->SumFireSq;
-    for (int cnt=0; cnt<siz; cnt++) {// then divide all upstream fires by their sum-of-squares.  then mult that vector by corrector value and add to weight.
+    for (size_t cnt=0; cnt<siz; cnt++) {// then divide all upstream fires by their sum-of-squares.  then mult that vector by corrector value and add to weight.
       ups = this->Working_Ins.at(cnt);
       num = ups->FireVal / SumSq;
       ups->Weight += num * ModCorrDelta;

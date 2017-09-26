@@ -24,17 +24,16 @@ public:
   /* ********************************************************************** */
   ~Cluster() {
     NodePtr ndp;
-    for (int ncnt=0; ncnt<this->NodeList.size(); ncnt++) {
+    for (size_t ncnt=0; ncnt<this->NodeList.size(); ncnt++) {
       ndp = this->NodeList.at(ncnt);
       delete ndp;
     }
   }
   /* ********************************************************************** */
-  void Fill_With_Nodes(int Num_Nodes) {
+  void Fill_With_Nodes(size_t Num_Nodes) {
     NodePtr ndp;
-    int cnt;
     this->NodeList.resize(Num_Nodes);
-    for (cnt=0; cnt<Num_Nodes; cnt++) {
+    for (size_t cnt=0; cnt<Num_Nodes; cnt++) {
       ndp = new Node();
       this->NodeList.at(cnt) = ndp;
     }
@@ -45,7 +44,7 @@ public:
     size_t siz0 = this->NodeList.size();
     size_t siz1 = upstreamer->NodeList.size();
     NodePtr dsn, usn;
-    int cnt0, cnt1;
+    size_t cnt0, cnt1;
     for (cnt0=0; cnt0<siz0; cnt0++) {
       dsn = this->NodeList.at(cnt0);
       for (cnt1=0; cnt1<siz1; cnt1++) {
@@ -57,7 +56,7 @@ public:
   /* ********************************************************************** */
   void Attach_Genome(MatrixPtr genome0) {
     NodePtr ndp;
-    for (int ncnt=0; ncnt<this->NodeList.size(); ncnt++) {
+    for (size_t ncnt=0; ncnt<this->NodeList.size(); ncnt++) {
       ndp = this->NodeList.at(ncnt);
       ndp->Attach_Genome(genome0);
     }
@@ -65,9 +64,8 @@ public:
   /* ********************************************************************** */
   void Push_Fire() {
     NodePtr ndp;
-    int cnt;
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Push_Fire();
     }
@@ -76,10 +74,9 @@ public:
   /* ********************************************************************** */
   void Collect_And_Fire() {
     NodePtr ndp;
-    int cnt;
     // right here the fire vals reside in the links
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Collect_And_Fire();
     }
@@ -93,9 +90,8 @@ public:
   /* ********************************************************************** */
   void Push_Correctors_Backward() {
     NodePtr ndp;
-    int cnt;
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Push_Correctors_Backward();
     }
@@ -103,9 +99,8 @@ public:
   /* ********************************************************************** */
   void Pull_Correctors() {
     NodePtr ndp;
-    int cnt;
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Pull_Correctors();
     }
@@ -113,9 +108,8 @@ public:
   /* ********************************************************************** */
   void Apply_Correctors() {
     NodePtr ndp;
-    int cnt;
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Apply_Corrector(ndp->Corrector);
     }
@@ -123,11 +117,19 @@ public:
   /* ********************************************************************** */
   void Randomize_Weights() {
     NodePtr ndp;
-    size_t cnt;
     size_t siz = this->NodeList.size();
-    for (cnt=0; cnt<siz; cnt++) {
+    for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
       ndp->Randomize_Weights();
+    }
+  }
+  /* ********************************************************************** */
+  void Reset() {// reset network back to original random values
+    NodePtr ndp;
+    size_t siz = this->NodeList.size();
+    for (size_t cnt=0; cnt<siz; cnt++) {
+      ndp = this->NodeList.at(cnt);
+      ndp->Reset();
     }
   }
   /* ********************************************************************** */

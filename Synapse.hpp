@@ -12,16 +12,14 @@ typedef Synapse *SynapsePtr;
 typedef std::vector<SynapsePtr> SynVec;
 class Synapse {
 public:
+  Node *USNode, *DSNode;
+  double FireVal, Corrector;// do we need separate //, FireSq
+  double WeightDef, Weight;
+  MatrixPtr genome;
+  int numins=5;
+  VectPtr state;
   // These are pies I put on my windowsill for Node to eat and leave a tip.
   double DSCorrVal, USCorrVal, DSFireVal, USFireVal, SumFireSq;
-
-  double FireVal, Corrector;// do we need separate //, FireSq
-
-  Node *USNode, *DSNode;
-  MatrixPtr genome;
-  VectPtr state;
-  double Weight;
-  int numins=5;
   /* ********************************************************************** */
   Synapse() {
     state = new Vect(this->numins);
@@ -48,7 +46,15 @@ public:
   }
   /* ********************************************************************** */
   void Randomize_Weight() {
-    this->Weight = (frand()-0.5) * WeightAmp;// to do: do this with a distribution change
+    this->WeightDef = (frand()-0.5) * WeightAmp;// to do: do this with a distribution change
+    this->Weight = this->WeightDef;// to do: do this with a distribution change
+  }
+  /* ********************************************************************** */
+  void Reset() {// reset network back to original random values
+    this->Weight = this->WeightDef;
+    this->FireVal=0.0; this->Corrector=0.0;
+    DSCorrVal=0.0; USCorrVal=0.0; DSFireVal=0.0; USFireVal=0.0; SumFireSq=0.0;
+    state->Fill(0.0);
   }
   /* ********************************************************************** */
   void Attach_Genome(MatrixPtr genome0) {

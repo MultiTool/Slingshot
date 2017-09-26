@@ -195,7 +195,7 @@ public:
     }
     // also allow shuffling vectors or maybe even columns here. at what rate?
     MRate *= MRate;// reduce it by square. because why not?
-    VectPtr v0,temp;
+    VectPtr temp;
     int swapdex;
     for (int cnt=0; cnt<this->hgt; cnt++) {
       if (frand()<MRate) {
@@ -240,7 +240,7 @@ public:
 
 #if 0
 /*
-so can all the behavior be done with just one matrix?  or do we need a stack of 3 matrices?
+one matrix is enough for all behaviors, if it is recurrent.
 
 so next vectors and matrices can mutate.  then maybe cross.
 
