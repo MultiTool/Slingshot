@@ -153,14 +153,20 @@ public:
     for (size_t TTableCnt=0; TTableCnt<siz; TTableCnt++){
       TruthTable = TrainingSets.at(TTableCnt);
       //TruthTable->Shuffle();// maybe do this?
-      this->BPNet->Reset();
-      {// this block will be the training loop
+      this->BPNet->Reset_Weights();// reset all the weights here
+      for (size_t TrainCnt=0; TrainCnt<MaxNeuroGens; TrainCnt++){// this block will be the training loop. we hit the same truth table many times during training.
+        // we hit here once per run of the truth table
         for (size_t paircnt=0; paircnt<TruthTable->size(); paircnt++){// loop through all iopairs of truth table, and train here.
           iopair = TruthTable->at(paircnt);
+          // to do: DeState all the orgs in the network here.
           this->BPNet->Load_Inputs(&(iopair->invec));// need invec here
           this->BPNet->Fire_Gen();
           this->BPNet->Backprop(&(iopair->goalvec));// need goalvec here
         }
+        // put a NeuroStagnation stopping test here.
+      }
+      {// put a loop here to get a dry-run score of network after training is done.
+
       }
     }
     //printf("TesterNet class not implemented yet.\n");

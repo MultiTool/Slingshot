@@ -2,6 +2,7 @@
 #define SYNAPSE_HPP_INCLUDED
 
 #include "Matrix.hpp"
+#include "Org.hpp"
 
 #define WeightAmp 2.0;
 
@@ -16,7 +17,7 @@ public:
   double FireVal, Corrector;// do we need separate //, FireSq
   double WeightDef, Weight;
   MatrixPtr genome;
-  int numins=5;
+  int numins=Org::DefaultWdt;//, Org::DefaultHgt
   VectPtr state;
   // These are pies I put on my windowsill for Node to eat and leave a tip.
   double DSCorrVal, USCorrVal, DSFireVal, USFireVal, SumFireSq;
@@ -50,8 +51,12 @@ public:
     this->Weight = this->WeightDef;// to do: do this with a distribution change
   }
   /* ********************************************************************** */
-  void Reset() {// reset network back to original random values
+  void Reset_Weights() {// reset network back to original random values
     this->Weight = this->WeightDef;
+    this->DeState();
+  }
+  /* ********************************************************************** */
+  void DeState() {// remove all stateful information from org/matrix, but keep weight
     this->FireVal=0.0; this->Corrector=0.0;
     DSCorrVal=0.0; USCorrVal=0.0; DSFireVal=0.0; USFireVal=0.0; SumFireSq=0.0;
     state->Fill(0.0);

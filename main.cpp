@@ -15,21 +15,7 @@ int main() {
   char name[256];
   {
     PopPtr pop = new Pop();
-
-    for (int cnt=0;cnt<16;cnt++){
-      for (int gcnt=0;gcnt<1000;gcnt++){
-        pop->Gen();
-      }
-      pop->Print_Results();
-      for (int gcnt=0;gcnt<50;gcnt++){
-        pop->Gen_No_Mutate();// coast, no mutations
-      }
-      pop->Print_Results();
-      printf("\n\n");
-      //std::cin.getline(name,256);
-
-      pop->Restart();
-    }
+    pop->Evolve();
     delete pop;
     return 0;
   }

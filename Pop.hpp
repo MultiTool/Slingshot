@@ -56,6 +56,39 @@ public:
     SumScores=0;
   }
   /* ********************************************************************** */
+  void Evolve() {// evolve for generations
+    uintmax_t EvoStagnationLimit = 75;//50;
+    for (int RetryCnt=0;RetryCnt<16;RetryCnt++){
+      double CurrentTopScore, TopScore = 0.0;
+      int AbortCnt=0;
+      for (int gcnt=0;gcnt<1000;gcnt++){
+        this->Gen();
+        CurrentTopScore=this->GetTopScore();
+        if (TopScore<CurrentTopScore){
+          AbortCnt=0; TopScore=CurrentTopScore;
+        }else{
+          AbortCnt++; // stopping condition: if best score hasn't improved in 50 generations, bail.
+          if (AbortCnt>EvoStagnationLimit){ break; }
+        }
+      }
+      this->Print_Results();
+      for (int gcnt=0;gcnt<50;gcnt++){
+        this->Gen_No_Mutate();// coast, no mutations
+      }
+      this->Print_Results();
+      printf("RetryCnt:%i\n\n", RetryCnt);
+      //std::cin.getline(name,256);
+
+      this->Restart();
+    }
+  }
+  /* ********************************************************************** */
+  double GetTopScore() {// not working yet
+    OrgPtr TopOrg = ScoreDexv[0];
+    double TopScore = TopOrg->Score[0];
+    return TopScore;
+  }
+  /* ********************************************************************** */
   void Restart() {// re-initialize the population genome without changing the tester or the test
     Org *org;
     size_t pcnt, popsize = ScoreDexv.size();

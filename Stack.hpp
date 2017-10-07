@@ -1,6 +1,8 @@
 #ifndef STACK_HPP_INCLUDED
 #define STACK_HPP_INCLUDED
 
+#include <functional>
+
 #include "Cluster.hpp"
 
 /* ********************************************************************** */
@@ -56,6 +58,11 @@ public:
   /* ********************************************************************** */
   void Fire_Gen() {
     size_t lcnt;
+
+    // experiment with templates
+    this->Aaagh<std::function<void(SynapsePtr)>>(DeStateFn);
+    this->Aaagh<double>(0.1);
+
     ClusterPtr clnow;
     clnow = Layers.at(0);
     for (lcnt=1; lcnt<Layers.size(); lcnt++) {
@@ -94,12 +101,38 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Reset() {// reset network back to original random values
+  void Reset_Weights() {// reset network back to original random values
     ClusterPtr clnow;
     size_t siz = this->Layers.size();
     for (size_t lcnt=0; lcnt<siz; lcnt++) {
       clnow = Layers.at(lcnt);
-      clnow->Reset();
+      clnow->Reset_Weights();
+    }
+  }
+  /* ********************************************************************** */
+  template <class AaaghType> void Aaagh(AaaghType fred) {
+    ClusterPtr clnow;
+    size_t siz = this->Layers.size();
+    for (size_t lcnt=0; lcnt<siz; lcnt++) {
+      clnow = Layers.at(lcnt);
+      clnow->Aaagh<AaaghType>(fred);
+    }
+  }
+  /* ********************************************************************** */
+  static void DeStateFn(SynapsePtr Syn) {
+    Syn->DeState();
+  }
+  /* ********************************************************************** */
+  void DeState() {
+    this->Synapse_Apply(DeStateFn);
+  }
+  /* ********************************************************************** */
+  void Synapse_Apply(std::function<void(SynapsePtr)> SynFunc) {// traverse the whole tree of synapses with whatever
+    ClusterPtr clnow;
+    size_t siz = this->Layers.size();
+    for (size_t lcnt=0; lcnt<siz; lcnt++) {
+      clnow = Layers.at(lcnt);
+      clnow->Synapse_Apply(SynFunc);
     }
   }
   /* ********************************************************************** */

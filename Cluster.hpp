@@ -1,8 +1,9 @@
 #ifndef CLUSTER_H_INCLUDED
 #define CLUSTER_H_INCLUDED
 
+#include <functional>
+
 #include "Node.hpp"
-//#include "TrainingSets.h"
 
 /* ********************************************************************** */
 class Cluster;
@@ -124,12 +125,30 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Reset() {// reset network back to original random values
+  void Reset_Weights() {// reset network back to original random values
     NodePtr ndp;
     size_t siz = this->NodeList.size();
     for (size_t cnt=0; cnt<siz; cnt++) {
       ndp = this->NodeList.at(cnt);
-      ndp->Reset();
+      ndp->Reset_Weights();
+    }
+  }
+  /* ********************************************************************** */
+  template <class AaaghType> void Aaagh(AaaghType fred) {
+    NodePtr ndp;
+    size_t siz = this->NodeList.size();
+    for (size_t cnt=0; cnt<siz; cnt++) {
+      ndp = this->NodeList.at(cnt);
+      //ndp->Aaagh<AaaghType>(fred);
+    }
+  }
+  /* ********************************************************************** */
+  void Synapse_Apply(std::function<void(SynapsePtr)> SynFunc) {
+    NodePtr ndp;
+    size_t siz = this->NodeList.size();
+    for (size_t cnt=0; cnt<siz; cnt++) {
+      ndp = this->NodeList.at(cnt);
+      ndp->Synapse_Apply(SynFunc);
     }
   }
   /* ********************************************************************** */

@@ -1,6 +1,8 @@
 #ifndef NODE_HPP_INCLUDED
 #define NODE_HPP_INCLUDED
 
+#include <functional>
+
 #include "Synapse.hpp"
 
 /* ********************************************************************** */
@@ -54,12 +56,21 @@ public:
     }
   }
   /* ********************************************************************** */
-  void Reset() {// reset network back to original random values
+  void Reset_Weights() {// reset network back to original random values
     SynapsePtr ups;
     size_t siz = this->Working_Ins.size();
     for (size_t cnt=0; cnt<siz; cnt++) {
       ups = this->Working_Ins.at(cnt);
-      ups->Reset();
+      ups->Reset_Weights();
+    }
+  }
+  /* ********************************************************************** */
+  void Synapse_Apply(std::function<void(SynapsePtr)> SynFunc) {
+    SynapsePtr ups;
+    size_t siz = this->Working_Ins.size();
+    for (size_t cnt=0; cnt<siz; cnt++) {
+      ups = this->Working_Ins.at(cnt);
+      SynFunc(ups);
     }
   }
   /* ********************************************************************** */
